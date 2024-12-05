@@ -16,7 +16,10 @@ jobs:
     strategy:
       matrix:
         include:
+          # FIXME enable and use debian:12 for releases
+          #- container: debian:12
           - container: ubuntu:22.04
+          #- container: ubuntu:23.10
     runs-on: ubuntu-latest
     container:
       image: ${{ matrix.container }}
@@ -65,6 +68,7 @@ jobs:
           xvfb-run ./utils/win64/win64-installer.sh
           ./utils/win64/win64-zip.sh
           if [ "${{ env.VERSION_TAG }}" != "$(cat VERSION)" ]; then
+            mv mod-desktop-*.exe mod-desktop-${{ env.VERSION_TAG }}-win64.exe
             mv mod-desktop-*.zip mod-desktop-${{ env.VERSION_TAG }}-win64.zip
           fi
       - uses: actions/upload-artifact@v4
@@ -72,6 +76,7 @@ jobs:
         with:
           name: mod-desktop-${{ env.VERSION_TAG }}-win64
           path: |
+            *.exe
             *.zip
       - uses: softprops/action-gh-release@v1
         if: ${{ matrix.container == env.RELEASE_OS_WIN64 && startsWith(github.ref, 'refs/tags/') }}
@@ -81,4 +86,4 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            *.zip
+            *.exe
